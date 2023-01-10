@@ -112,7 +112,8 @@ def aug_ft(data, augmentation):
         # norm_data = albumentations.normalize(img=data, mean=np.mean(data), std=np.std(data), max_pixel_value=1)
         Totensor = T.Compose([T.ToTensor()])
         tensor_data = Totensor(data)
-        norm = T.Compose([T.Normalize(mean=(torch.mean(tensor_data[:,:,0]), torch.mean(tensor_data[:,:,1]), torch.mean(tensor_data[:,:,2])), std=(torch.std(tensor_data[:,:,0]), torch.std(tensor_data[:,:,1]), torch.std(tensor_data[:,:,2])))])
+        norm = T.Compose([T.Normalize(mean=(torch.mean(tensor_data[0,:,:]), torch.mean(tensor_data[1,:,:]), torch.mean(tensor_data[2,:,:])), 
+                                      std=(torch.std(tensor_data[0,:,:]), torch.std(tensor_data[1,:,:]), torch.std(tensor_data[2,:,:])))])
         augmented_data = norm(tensor_data)
     return augmented_data
 
