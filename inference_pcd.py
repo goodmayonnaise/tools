@@ -1,18 +1,17 @@
 
 import cv2, pickle, yaml, os
 import numpy as np 
+from tqdm import tqdm
 from einops import rearrange
+
 from model import new_model
 from utils import set_device
+
 
 import torch
 from torch import nn
 from torch.optim import lr_scheduler, Adam
 import torchvision.transforms as T
-from PIL import Image
-        
-        
-
 
 
 def point_padding(wh_list, y_img, H, W, fill_size = 1):        
@@ -130,16 +129,22 @@ if __name__ == "__main__":
     
     CFG = load_config()
     learning_map = CFG['learning_map']
+    learning_map_inv = CFG['learning_map_inv']
+    color_map = CFG['color_map']
+    
     transform = T.ToPILImage()
 
-
-    sequences_n = ['00', '01', '02', '03', '04','05','06','07','08']
-    for sequence_n in sequences_n:
-        file_n = '000000'
+    sequence_n = '00'
+    img_dir = f'/mnt/team_gh/kitti/dataset/sequences/{sequence_n}/image_2'
+    img_files = os.listdir(img_dir)
+    img_filenames = []
+    for img_file in img_files:
+        img_filenames.append(img_file[:-4])    
+    
+    for file_n in tqdm(img_filenames):
         x_img = f'/mnt/team_gh/kitti/dataset/sequences/{sequence_n}/image_2/{file_n}.png'
         x_rem = f'/mnt/team_gh/kitti/dataset/sequences/{sequence_n}/projection_front/remission/{file_n}.npy'
         mapping_data = f'/mnt/team_gh/kitti/dataset/sequences/{sequence_n}/proj_point_label_mapping/{file_n}.pickle' # output y_img, y_rem 
-
         
         x_rem = np.load(x_rem)
         x_rem = np.array(x_rem)
@@ -152,13 +157,11 @@ if __name__ == "__main__":
         H, W = input_shape[0], input_shape[1]
         
         x_img = cv2.imread(x_img)
-        cv2.imwrite("./samples/original_x_img.png", x_img) # original 저장 
         x_img = np.array(x_img)
         x_img = cv2.resize(x_img[min_H:,:], (W, H))
+        cv2.imwrite(f'./samples/rgb/{sequence_n}_{file_n}_rgb.png', x_img)
         x_img = torch.FloatTensor(x_img)
         x_img = rearrange(x_img, 'h w c -> c h w') # 20 256 1280
-        x_png = transform(x_img)
-        x_png.save(f'./samples/{sequence_n}_{file_n}_original_image.png', dtype=np.uint8)
         
         x_rem_H, x_rem_W = x_rem.shape # 256 1280 
         
@@ -183,22 +186,25 @@ if __name__ == "__main__":
         wh_list = np.where(np.sum(y_rem, axis=0)!=0)
         y_img = point_padding(wh_list, y_img, H, W, 2)
         y_img[0, np.sum(y_img, axis=0)==0] = 1 # numpy 에서 cv2.imwrite
-        y_color, y_color_origin = colorize_sample(np.argmax(y_img,axis=0), u, v, uv_label, CFG)  
-        cv2.imwrite("./samples/label_fill2.png", y_color)
-        cv2.imwrite('./samples/label_origin.png',y_color_origin)
+        # y_color, y_color_origin = colorize_sample(np.argmax(y_img,axis=0), u, v, uv_label, CFG)  
+        # cv2.imwrite("./samples/label_fill2.png", y_color)
+        # cv2.imwrite('./samples/label_origin.png',y_color_origin)
         y_img = torch.FloatTensor(y_img)
         
         y_rem[0, np.sum(y_rem, axis=0)==0] = 1
         y_rem = rearrange(y_rem, 'c h w -> c (h w)')
         y_rem = torch.FloatTensor(y_rem)
         
-        x_img, x_rem, y_img, y_rem = x_img.to(device).unsqueeze(0), x_rem.to(device).unsqueeze(0), y_img.to(device).unsqueeze(0), y_rem.to(device).unsqueeze(0)
+        x_img, x_rem, y_img, y_rem = x_img.unsqueeze(0), x_rem.unsqueeze(0), y_img.unsqueeze(0), y_rem.unsqueeze(0)
+        # x_img, x_rem, y_img, y_rem = x_img.to(device).unsqueeze(0), x_rem.to(device).unsqueeze(0), y_img.to(device).unsqueeze(0), y_rem.to(device).unsqueeze(0)
         
-        state = torch.load('./weights/checkpoint.pth.tar')
+        # state = torch.load('./weights/best_weight/random_states_3.pkl')
+        state = torch.load('./weights/best_weight/pytorch_model.bin')
         model = new_model(input_shape=input_shape)
-        model = model.cuda()
-        model = nn.DataParallel(model, device_ids=num_gpu)
-        model.load_state_dict(state['model_state_dict'])
+        # model = model.cuda()
+        # model = nn.DataParallel(model, device_ids=num_gpu)
+        # model.load_state_dict(state['model_state_dict'])
+        model.load_state_dict(state)
         
         optimizer = Adam(model.parameters(), lr=1e-4)
         schdeuler = lr_scheduler.ExponentialLR(optimizer, gamma=0.99)
@@ -206,38 +212,37 @@ if __name__ == "__main__":
         with torch.no_grad():
             model.eval()
             segment_out, uv_out, uv = model(x_img, x_rem) 
-
-            
-            # uv = nn.Conv2d(32, 20, 1).to(device)(uv) # 20 256 1280
-            # uv3 = nn.Conv2d(32, 3, 1).to(device)(uv)
-            # from torchvision.utils import save_image
-            # save_image(uv3, './samples/uv3_direct.png')
-
-            segment_out, uv_out , uv= segment_out.squeeze(0), uv_out.squeeze(0), uv.squeeze(0) # 20 256 1280 / 20 256*1280
+            segment_out, uv_out , uv = segment_out.squeeze(0), uv_out.squeeze(0), uv.squeeze(0) # 20 256 1280 / 20 256*1280
             '''
             segment out     20 256 1280
             uv out          20 256*1280
             uv              32 256 1280 
             '''
-            segmnet_arr = segment_out.cpu().numpy()
+            segment_arr = segment_out.cpu().numpy()
+            segment_arr = np.argmax(segment_arr, axis=0)
+            
+            segment_result = np.zeros([*segment_arr.shape, 3])
+            
+            for c in color_map.keys():
+                segment_result[segment_arr==c] = color_map[c][::-1]
+            
+            cv2.imwrite(f"./samples/rgb_out/{sequence_n}_{file_n}_rgb_out.png", segment_result)
+
             uv_arr = uv_out.cpu().numpy()
             uv_arr = rearrange(uv_arr, 'c (h w) -> c h w',  h=256) # 20 256 1280
             
             uv_arr = np.argmax(uv_arr, axis=0) #  1 256 1280
             
-            print(uv_arr.max()) # 19 
-            print(uv_arr.min()) # 1 
+            # print(uv_arr.max()) # 19 
+            # print(uv_arr.min()) # 1 
             
             result = np.zeros([H, W])
-            
             
             for x, y in zip(u, v):
                 result[y, x] = uv_arr[y, x]
             
-
-            result1, result1_origin = colorize_sample(result, u, v, uv_label, CFG)
+            uv_pred, uv_label = colorize_sample(result, u, v, uv_label, CFG)
             
-            cv2.imwrite(f"./samples/{sequence_n}_{file_n}_pred.png", result1)
-            cv2.imwrite(f'./samples/{sequence_n}_{file_n}_uv_label.png', result1_origin)
+            cv2.imwrite(f"./samples/uv_pred/{sequence_n}_{file_n}_pred.png", uv_pred)
+            cv2.imwrite(f'./samples/uv_label/{sequence_n}_{file_n}_uv_label.png', uv_label)
         
-            print()
