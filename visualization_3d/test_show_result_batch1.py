@@ -1,6 +1,6 @@
 import os, cv2
 import numpy as np
-from time import time
+from time import time, sleep
 from einops import rearrange
 
 from utils import AverageMeter, ProgressMeter, set_device, load_config, colorize_sample
@@ -34,7 +34,6 @@ def test(test_loader, model, use_gpu, criterion, device):
         model.eval()
         for iter, batch in enumerate(test_loader):
             # data_time.update(time()-end)
-
             if use_gpu:
                     inputs = batch['X'].to(device)
                     labels = batch['segment_label'].to(device)
@@ -45,6 +44,13 @@ def test(test_loader, model, use_gpu, criterion, device):
             else:
                 inputs, labels = batch['X'], batch['segment_label']
                 inputs_rem, uv_labels = batch['X_rem'], batch['uv_label']
+                
+            result_rem = inputs_rem[0][0].cpu().numpy() # 1 256 1280
+            
+            result_rem2 = cv2.normalize(result_rem2, None, 0, 1000, cv2.NORM_MINMAX)
+            sleep(0.001)   
+            
+            cv2.imwrite('./samples/rem.png', result_rem)
 
             segment_out, uv_out = model(inputs, inputs_rem)
             
@@ -132,9 +138,7 @@ if __name__ == "__main__":
     learning_map = CFG['learning_map']
     sequences = CFG['split'][phase]
     sequences = [str(i).zfill(2) for i in sequences]
-    learning_map = CFG['learning_map']
-    sequences = CFG['split'][phase]
-    sequences = [str(i).zfill(2) for i in sequences]
+
 
     
     print("test data loading...")
