@@ -9,15 +9,20 @@
             "name": "Python: /mmsegmentation",
             "type": "python",
             "module": "torch.distributed.launch",
-
             "request": "launch",
             "console": "integratedTerminal",
             "justMyCode": true,
             "cwd" : "${workspaceFolder}",
             "args": [ 
+                "--nnodes", "1",
+                "--node_rank", "0",
+                "--master_addr", "127.0.0.1",
                 "--nproc_per_node", "2",
+                "--aster_port", "29401",
                 "tools/train.py",
                 "/mmsegmentation/configs/fcn/fcn_d6_r50-d16_512x1024_40k_semantic_kitti.py",
+                "--gpu-ids", "0","1",
+                "--launch", "pytorch"
             ]
         }
     ]
