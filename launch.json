@@ -4,25 +4,25 @@
     // 자세한 내용을 보려면 https://go.microsoft.com/fwlink/?linkid=830387을(를) 방문하세요.
     "version": "0.2.0",
     "configurations": [
-
         {
-            "name": "Python: /mmsegmentation",
+            "name": "Python: vit-adapter docker container debug /vit-adapter/segmentation/train.py",
             "type": "python",
             "module": "torch.distributed.launch",
             "request": "launch",
+            // "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "cwd" : "${workspaceFolder}",
-            "args": [ 
+            "cwd": "${workspaceFolder}",
+            "args": [
                 "--nnodes", "1",
                 "--node_rank", "0",
-                "--master_addr", "127.0.0.1",
                 "--nproc_per_node", "2",
-                "--aster_port", "29401",
-                "tools/train.py",
-                "/mmsegmentation/configs/fcn/fcn_d6_r50-d16_512x1024_40k_semantic_kitti.py",
-                "--gpu-ids", "0","1",
-                "--launch", "pytorch"
+                "--master_port", "29400",
+                "segmentation/train.py",
+                "segmentation/configs/cityscapes/mask2former_beit_adapter_large_896_80k_cityscapes_ms.py",
+                "--gpu-ids", "0", "1",
+                "--launch", "pytorch",
+                "--no-validate"
             ]
         }
     ]
