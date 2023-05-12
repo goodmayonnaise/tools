@@ -2,9 +2,10 @@
 sequneces와 image_2, image_3 별로 train/val 구분 
 '''
 
+
 import os 
 import shutil
-mode = 'val'
+mode = 'train'
 
 if mode == 'val':
     sequences = '08'
@@ -56,10 +57,10 @@ for s in all_sequences:
         #     print(f'/mnt/data/home/team_gh/jyjeon/vit-adapter/data/kitti/input_dir/{mode}/{s}_2_{i}')
         #     print(f'/mnt/data/home/team_gh/jyjeon/vit-adapter/data/kitti/input_dir/{mode}/{s}_3_{i}')
                  
-        #     before2, after2 = os.path.join(image2,i), f'/mnt/data/home/team_gh/jyjeon/vit-adapter/data/kitti/input_dir/{mode}/{s}_2_{i}'
-        #     before3, after3 = os.path.join(image3,i), f'/mnt/data/home/team_gh/jyjeon/vit-adapter/data/kitti/input_dir/{mode}/{s}_3_{i}'
-        #     shutil.copy(before2, after2)
-        #     shutil.copy(before3, after3)
+        #     input2_before, input2_after = os.path.join(image2,i), f'/mnt/data/home/team_gh/jyjeon/vit-adapter/data/kitti/input_dir/{mode}/{s}_2_{i}'
+        #     input3_before, input3_after = os.path.join(image3,i), f'/mnt/data/home/team_gh/jyjeon/vit-adapter/data/kitti/input_dir/{mode}/{s}_3_{i}'
+        #     shutil.copy(input2_before, input2_after)
+        #     shutil.copy(input3_before, input3_after)
         print(f'{s} END ------------------------------------------------')
             
         
