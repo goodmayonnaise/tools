@@ -14,7 +14,7 @@ if __name__ == "__main__":
     for s in val_sequences:
         print(f"sequence {s} START --------------------------")
 
-        s_path = os.path.join(sequences_path,s,'image_2')
+        s_path = os.path.join(sequences_path,s,'image_3') # image_2, image_3 
         
         if s in ['00','01','02']:
             first_shape = (376, 1241, 3)
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
             # print(f'sequence {s} shape {sample.shape}')
 
-        print(f"sequence {s} END --------------------------")
+        print(f"sequence {s} END --------------------------\n")
         # time.sleep(1)
         
     
