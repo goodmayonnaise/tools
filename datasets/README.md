@@ -1,7 +1,7 @@
 
 
-## KITTI_shape_per_sequnece.py
-''' sequence 00 START --------------------------
+### KITTI_shape_per_sequnece.py
+""" sequence 00 START --------------------------
 sequence 00 first shape : (376, 1241, 3)
 sequence 00 END --------------------------
 
@@ -44,4 +44,4 @@ sequence 09 END --------------------------
 sequence 10 START --------------------------
 sequence 10 first shape : (370, 1226, 3)
 sequence 10 END --------------------------
-'''
+"""
