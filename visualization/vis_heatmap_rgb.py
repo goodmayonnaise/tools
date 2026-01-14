@@ -4,7 +4,7 @@
             "name": "heatmap",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/heatmap2.py",
+            "program": "${workspaceFolder}/heatmap.py",
             "args": [
                 "data/split2/val",
                 "--weight", "weights/efficientnet-b3-no-prt/model_best.pth.tar",
