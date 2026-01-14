@@ -38,7 +38,7 @@ parser.add_argument('--gpu', type=int, default=0)
 
 def main():
     args = parser.parse_args()
-    args.out = os.path.join(*args.weight.split('/')[:-1], *args.data.split('/'))
+    args.out = os.path.join(*args.weight.split('/')[:-1], *args.data.split('/'), 'heatmap')
     os.makedirs(args.out, exist_ok=True)
     model = EfficientNet.from_name(args.arch)
     model._fc = nn.Linear(model._fc.in_features, 2)
