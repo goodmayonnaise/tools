@@ -1,21 +1,3 @@
-'''
-    "configurations": [
-        {
-            "name": "heatmap",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/heatmap.py",
-            "args": [
-                "data/split2/val",
-                "--weight", "weights/efficientnet-b3-no-prt/model_best.pth.tar",
-            ],
-            "cwd": "${workspaceFolder}",
-            "justMyCode": false,
-            "console": "integratedTerminal"
-        }
-    ]
-'''
-
 import argparse
 import os
 import PIL.Image as Image
@@ -37,6 +19,7 @@ class ImageFolderWithPath(ImageFolder):
         path, _ = self.samples[index]
         return image, target, path
     
+
 feature_maps = {}
 
 def save_feature(name):
@@ -55,7 +38,7 @@ parser.add_argument('--gpu', type=int, default=0)
 
 def main():
     args = parser.parse_args()
-    args.out = os.path.join(*args.weight.split('/')[-1:], *args.data.split('/'))
+    args.out = os.path.join(*args.weight.split('/')[:-1], *args.data.split('/'))
     os.makedirs(args.out, exist_ok=True)
     model = EfficientNet.from_name(args.arch)
     model._fc = nn.Linear(model._fc.in_features, 2)
@@ -196,12 +179,11 @@ def main():
             out_path = os.path.join(args.out, fname)
             results = np.concatenate(results, 1)
             cv2.imwrite(out_path, results)
-            print(f"[SAVE] {out_path} | GT : {target.item()} PRED : {pred.item()}")
+            print(f"[SAVE] {out_path}\t| GT : {target.item()} PRED : {pred.item()} | correct : {target.item()==pred.item()}")
 
 
     print("Done.")
                 
-
 
 if __name__ == "__main__":
     main()
