@@ -1,7 +1,3 @@
-## ref
-* https://github.com/solomontesema/SIGtor?tab=readme-ov-file
-
-
 ## Data Structure 
 ```
 .\data
@@ -20,3 +16,7 @@
 
 ## generate
 ```python sigtor\scripts\generate.py --config config.yaml --source_ann_file data\true_fasle\annotations.txt```
+
+## ref
+* https://github.com/solomontesema/SIGtor?tab=readme-ov-file
+
