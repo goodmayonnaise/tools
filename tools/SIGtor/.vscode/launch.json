@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "sigtor --config config.yaml",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/sigtor/scripts/generate.py",
+            "args": [
+                "--config", "config.yaml",
+                "--source_ann_file", "./data/true_false/annotations.txt",
+                // "--destn_dir", "./data/new/defect",
+                // "--bckgrnd_imgs_dir", "./data/images/true_false/false",
+                // "--total_new_imgs", "100"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}
