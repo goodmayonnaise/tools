@@ -14,9 +14,9 @@
    └─true
 ```
 
-## generate
+## Generate
 ```python sigtor\scripts\generate.py --config config.yaml --source_ann_file data\true_fasle\annotations.txt```
 
-## ref
+## Ref
 * https://github.com/solomontesema/SIGtor?tab=readme-ov-file
 
