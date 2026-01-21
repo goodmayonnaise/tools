@@ -1,0 +1,15 @@
+SIGtor:
+  source_ann_file: "./data/true_false/annotations_expand.txt"
+  destn_dir: "./data/new/expand/"
+  # mask_image_dirs: "./Datasets/Source/Masks"
+  bckgrnd_imgs_dir: "./data/images/true_false/false"
+  classnames_file: "./data/labels/labels.txt"
+  total_new_imgs: 1000
+  max_search_iterations: 20
+  # edge_refinement_level: "high"
+  blending_method: "AlphaBlend"
+  enable_post_processing: false
+  color_harmonization: False 
+  context_aware_augmentations: False
+
+
